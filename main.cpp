@@ -93,7 +93,9 @@ int main(int argc, char* argv[]){
         b[i] = b_temp[i];
 
         nums_matrix[i][NUM] = new QLabel();
-        nums_matrix[i][NUM]->setNum(b[i]);
+
+        QString result_b = QString("%1").arg(b[i], 0, 'f', 4);
+        nums_matrix[i][NUM] -> setText(result_b);
         nums_matrix[i][NUM]->setStyleSheet("border-left: 3px solid #FF5C00;");
         matrix_layout->addWidget(nums_matrix[i][NUM], i, NUM);
         a[i] = new double[NUM];
@@ -101,7 +103,9 @@ int main(int argc, char* argv[]){
             a[i][j] = a_temp[i][j];
 
             nums_matrix[i][j] = new QLabel();
-            nums_matrix[i][j]->setNum(a[i][j]);
+
+            QString result_text = QString("%1").arg(a[i][j], 0, 'f', 4);
+            nums_matrix[i][j] -> setText(result_text);
             
             matrix_layout->addWidget(nums_matrix[i][j], i, j);
         }
