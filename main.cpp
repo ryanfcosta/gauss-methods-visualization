@@ -18,7 +18,7 @@
 #include <QFile>
 #include <QTextStream>
 
-#define NUM 4
+#define NUM 3
 
 using namespace std;
 
@@ -77,14 +77,13 @@ int main(int argc, char* argv[]){
     cout << fixed << setprecision(9);
 
     double a_temp[NUM][NUM] = {
-        {-18.0000,3.0000,4.0000,-5.0000},
-        {1.0000, -6.0000, 0.0000, 3.0000},
-        {1.0000,4.0000,-8.0000,-1.0000},
-        {-2.0000,3.0000,-4.0000,-10.0000}
+        {-0.0000,1.0000,0.8415},
+        {3,-1.0000,0.0000},
+        {14.7781, 0.0000,-1.0000}
     };
 
     double b_temp[NUM] {
-        0, 10 ,5 ,-3
+        0.5403, 3, 15.3890
     };
 
     double **a = new double*[NUM];
@@ -129,6 +128,11 @@ int main(int argc, char* argv[]){
 
     Elimination::solve(a,vars,b,NUM);
     exibeMatriz(a,b);
+
+    for(int i =0; i < NUM; i++){
+        QString result_text = QString("x%1 = %2").arg(i + 1).arg(vars[i], 0, 'f', 4);
+        var_labels[i]->setText(result_text);
+    }
 
     for(auto const x : vars){
         cout << x << " ";
