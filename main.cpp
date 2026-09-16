@@ -1,6 +1,7 @@
 #include "Elimination.h"
 #include "GJacobi.h"
 #include "GSeidel.h"
+#include "MethodVisualizer.h"
 
 #include <iostream>
 #include <string>
@@ -19,45 +20,9 @@
 #include <QTextStream>
 #include <QPushButton>
 
-#define NUM 4
 #define PRECISION 7
 
 using namespace std;
-
-void resetMatrix(double**a, const double a_temp[NUM][NUM], vector<double> &vars, double*b, const double b_temp[NUM], QLabel* nums_matrix[NUM][NUM + 1]){
-    vars.assign(NUM, 0.0);
-    for (int i = 0; i < NUM; i++) {
-        b[i] = b_temp[i];
-
-        nums_matrix[i][NUM]->setText( QString("%1").arg(b[i], 0, 'f', PRECISION));
-
-        for (int j = 0; j < NUM; j++) {
-            a[i][j] = a_temp[i][j];
-            nums_matrix[i][j] -> setText(QString("%1").arg(a[i][j], 0, 'f', PRECISION));
-        }
-    }
-}
-
-void updateUIMatrix(double** a, double* b, QLabel* nums_matrix[NUM][NUM + 1]){
-    for (int i = 0; i < NUM; i++){ 
-        nums_matrix[i][NUM]->setText( QString("%1").arg(b[i], 0, 'f', PRECISION));
-        for (int j = 0; j < NUM; j++){
-            nums_matrix[i][j] -> setText(QString("%1").arg(a[i][j], 0, 'f', PRECISION));
-        }
-    }
-    
-}
-
-
-void exibeMatriz(double **a ,double *b){
-    for(int i = 0; i < NUM ; i++){
-        for(int j = 0; j < NUM; j++){
-            cout << a[i][j] << " ";
-        }
-        cout <<" | " << b[i] <<"\n";
-    }
-        cout << endl;
-}
 
 int main(int argc, char* argv[]){
     QApplication app(argc, argv);   
@@ -132,7 +97,7 @@ int main(int argc, char* argv[]){
         matrix_layout->addWidget(nums_matrix[i][NUM], i, NUM);
     }
 
-    resetMatrix(a, a_temp, vars, b, b_temp, nums_matrix);
+    MethodVisualizer::resetUI(a, a_temp, vars, b, b_temp, nums_matrix);
     QLabel * var_labels[NUM];
 
     QLabel * num_iter_label = new QLabel;
@@ -151,7 +116,7 @@ int main(int argc, char* argv[]){
         results_container->addWidget(var_labels[i]);
     }
     
-    resetMatrix(a, a_temp, vars, b, b_temp, nums_matrix);
+    MethodVisualizer::resetUI(a, a_temp, vars, b, b_temp, nums_matrix);
 
     for(int i =0; i < NUM ; i++){
         cout << vars[i] << " ";
@@ -162,21 +127,21 @@ int main(int argc, char* argv[]){
     QPushButton *button_elimin = new QPushButton("Gauss Elimination");
     methods_container->addWidget(button_elimin);
     QObject::connect(button_elimin, &QPushButton::clicked, [&a,a_temp, &vars,&b, b_temp, var_labels, num_iter_label, &nums_matrix](){
-        updateUIMatrix(a,b,nums_matrix);
-        resetMatrix(a, a_temp, vars, b, b_temp, nums_matrix);
+        MethodVisualizer::updateMatrixUI(a,b,nums_matrix);
+        MethodVisualizer::resetUI(a, a_temp, vars, b, b_temp, nums_matrix);
         Elimination::solve(a,vars,b, NUM);
         for (int i = 0; i < NUM; i++) {
             QString result_text = QString("x%1 = %2").arg(i + 1).arg(vars[i], 0, 'f', PRECISION);
             var_labels[i]->setText(result_text);
         }
-        updateUIMatrix(a,b,nums_matrix);
+        MethodVisualizer::updateMatrixUI(a,b,nums_matrix);
         num_iter_label->setText(QString("Rounds: %1").arg(NUM-1));
     });
 
     QPushButton *button_jacobi = new QPushButton("Gauss Jacobi");
     methods_container->addWidget(button_jacobi);
     QObject::connect(button_jacobi, &QPushButton::clicked, [&a,a_temp, &vars,&b, b_temp, var_labels, num_iter_label, &nums_matrix](){
-        resetMatrix(a, a_temp, vars, b, b_temp, nums_matrix);
+        MethodVisualizer::resetUI(a, a_temp, vars, b, b_temp, nums_matrix);
         int iterations = GJacobi::solve(a,vars,b, NUM);
         for (int i = 0; i < NUM; i++) {
             QString result_text = QString("x%1 = %2").arg(i + 1).arg(vars[i], 0, 'f', PRECISION);
@@ -188,7 +153,7 @@ int main(int argc, char* argv[]){
     QPushButton *button_seidel = new QPushButton("Gauss Seidel");
     methods_container->addWidget(button_seidel);
     QObject::connect(button_seidel, &QPushButton::clicked, [&a,a_temp, &vars,&b, b_temp, var_labels, num_iter_label, &nums_matrix](){
-        resetMatrix(a, a_temp, vars, b, b_temp, nums_matrix);
+        MethodVisualizer::resetUI(a, a_temp, vars, b, b_temp, nums_matrix);
         int iterations = GSeidel::solve(a,vars,b, NUM);
         for (int i = 0; i < NUM; i++) {
             QString result_text = QString("x%1 = %2").arg(i + 1).arg(vars[i], 0, 'f', PRECISION);

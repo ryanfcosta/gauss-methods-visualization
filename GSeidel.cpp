@@ -21,7 +21,7 @@ bool GSeidel::critSassenfeld(double **a, const int NUM){
             max_beta = beta[i];
         }
         cout << "beta "<< i  + 1<< " " << beta[i] << endl;
-
+        
     }
     if(max_beta >= 1) return false;
     return true;
@@ -46,8 +46,10 @@ int GSeidel::gaussSeidel(double** a, vector <double> &vars, double* b, const int
             }
             vars[i] = (b[i] - sum) / a[i][i];
         }
-        stop = GJacobi::critParada(last,vars,NUM, 1e-9);
+        stop = GJacobi::critParada(last,vars,NUM, 1e-6);
         reps++;
+        
+    
     }while(!stop && reps < 1000);
     cout << "Repetições " << reps << endl;
     return reps;

@@ -51,7 +51,7 @@ int GJacobi::gaussJacobi(double** A, vector <double> &vars, double* b, const int
             temp[i] = (b[i] - sum) / A[i][i];
         }
 
-        stop = critParada(vars, temp, NUM, 1e-9);
+        stop = critParada(vars, temp, NUM, 1e-6);
         for (int i = 0; i < NUM; i++) vars[i] = temp[i];
         reps ++;
     } while(!stop && reps < 1000);

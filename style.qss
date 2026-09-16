@@ -14,6 +14,7 @@ QLabel {
     font-size: 16px;
     font-weight: bold;
     text-align: center;
+    max-height: 40;
 }
 
 QPushButton {
@@ -23,6 +24,7 @@ QPushButton {
     padding: 10px;
     font-weight: bold;
     max-width:250;
+    max-height: 50;
 }
 
 QPushButton:hover {
