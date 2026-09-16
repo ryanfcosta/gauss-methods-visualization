@@ -27,7 +27,7 @@ bool GSeidel::critSassenfeld(double **a, const int NUM){
     return true;
 }
 
-void GSeidel::gaussSeidel(double** a, vector <double> &vars, double* b, const int NUM){
+int GSeidel::gaussSeidel(double** a, vector <double> &vars, double* b, const int NUM){
     bool stop = false;
     int reps = 0;
 
@@ -50,12 +50,14 @@ void GSeidel::gaussSeidel(double** a, vector <double> &vars, double* b, const in
         reps++;
     }while(!stop && reps < 1000);
     cout << "Repetições " << reps << endl;
+    return reps;
 }
 
-void GSeidel::solve(double* *a, vector<double> &vars, double* b, const int NUM){
+int GSeidel::solve(double* *a, vector<double> &vars, double* b, const int NUM){
     if(GJacobi::critLinhas(a, NUM) || GSeidel::critSassenfeld(a, NUM)){
-        gaussSeidel(a,vars,b, NUM);
+        return gaussSeidel(a,vars,b, NUM); 
     }else{
         cout << "Não irá convergir" << endl;
+        return 0;
     }
 }

@@ -35,7 +35,7 @@ bool GJacobi::critParada(vector<double> last, vector<double> current, const int 
     return false;
 }
 
-void GJacobi::gaussJacobi(double** A, vector <double> &vars, double* b, const int NUM){
+int GJacobi::gaussJacobi(double** A, vector <double> &vars, double* b, const int NUM){
     vector<double> temp(NUM, 0.0);
     bool stop = false;
 
@@ -56,13 +56,15 @@ void GJacobi::gaussJacobi(double** A, vector <double> &vars, double* b, const in
         reps ++;
     } while(!stop && reps < 1000);
     cout << "Repetições: " << reps << endl;
+    return reps;
 }
 
-void GJacobi::solve(double**A, vector<double> & vars, double *b, const int  NUM){
+int GJacobi::solve(double**A, vector<double> & vars, double *b, const int  NUM){
     if(critLinhas(A, NUM)){
-        gaussJacobi(A,vars,b,NUM);
+        return gaussJacobi(A,vars,b,NUM);
     }
     else{
         cout << "Não irá convergir" << endl;
+        return 0;
     }
 }

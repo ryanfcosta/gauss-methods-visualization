@@ -20,22 +20,34 @@
 #include <QPushButton>
 
 #define NUM 4
+#define PRECISION 7
 
 using namespace std;
 
-void resetMatrix(double**a, const double a_temp[NUM][NUM], vector<double> vars, double*b, const double b_temp[NUM], QLabel* nums_matrix[NUM][NUM + 1]){
+void resetMatrix(double**a, const double a_temp[NUM][NUM], vector<double> &vars, double*b, const double b_temp[NUM], QLabel* nums_matrix[NUM][NUM + 1]){
     vars.assign(NUM, 0.0);
     for (int i = 0; i < NUM; i++) {
         b[i] = b_temp[i];
 
-        nums_matrix[i][NUM]->setText( QString("%1").arg(b[i], 0, 'f', 4));
+        nums_matrix[i][NUM]->setText( QString("%1").arg(b[i], 0, 'f', PRECISION));
 
         for (int j = 0; j < NUM; j++) {
             a[i][j] = a_temp[i][j];
-            nums_matrix[i][j] -> setText(QString("%1").arg(a[i][j], 0, 'f', 4));
+            nums_matrix[i][j] -> setText(QString("%1").arg(a[i][j], 0, 'f', PRECISION));
         }
     }
 }
+
+void updateUIMatrix(double** a, double* b, QLabel* nums_matrix[NUM][NUM + 1]){
+    for (int i = 0; i < NUM; i++){ 
+        nums_matrix[i][NUM]->setText( QString("%1").arg(b[i], 0, 'f', PRECISION));
+        for (int j = 0; j < NUM; j++){
+            nums_matrix[i][j] -> setText(QString("%1").arg(a[i][j], 0, 'f', PRECISION));
+        }
+    }
+    
+}
+
 
 void exibeMatriz(double **a ,double *b){
     for(int i = 0; i < NUM ; i++){
@@ -61,11 +73,11 @@ int main(int argc, char* argv[]){
     }
 
 
-    QWidget janela;
-    janela.setWindowTitle("Gauss Methods Visualization");
-    janela.resize(1920,1080);
+    QWidget window;
+    window.setWindowTitle("Gauss Methods Visualization");
+    window.resize(1920,1080);
 
-    QVBoxLayout *main_layout = new QVBoxLayout(&janela);
+    QVBoxLayout *main_layout = new QVBoxLayout(&window);
 
     QHBoxLayout *visualize_layout = new QHBoxLayout();
     QGridLayout *matrix_layout = new QGridLayout();
@@ -106,10 +118,10 @@ int main(int argc, char* argv[]){
     for (int i = 0; i < NUM; i++) {
         a[i] = new double[NUM];
     }
+    
     double b[NUM];
     vector <double> vars(NUM, 0.0);
 
-    QLabel* nums_matrix[NUM][NUM + 1];
     for (int i = 0; i < NUM; i++) {
         for (int j = 0; j < NUM; j++) {
             nums_matrix[i][j] = new QLabel();
@@ -123,66 +135,70 @@ int main(int argc, char* argv[]){
     resetMatrix(a, a_temp, vars, b, b_temp, nums_matrix);
     QLabel * var_labels[NUM];
 
+    QLabel * num_iter_label = new QLabel;
+    num_iter_label->setText("Iterations:   ");
+    results_container->addWidget(num_iter_label);
+
     for(int i = 0; i < NUM; i++){
         var_labels[i] = new QLabel();
 
-        QString result_text = QString("x%1 = %2").arg(i + 1).arg(vars[i], 0, 'f', 4);
+        QString result_text = QString("x%1 = %2").arg(i + 1).arg(vars[i], 0, 'f', PRECISION);
         var_labels[i] -> setText(result_text);
 
         var_labels[i]->setFixedSize(150, 40);
         var_labels[i]->setAlignment(Qt::AlignCenter);
-
-        var_labels[i]->setObjectName("resultado");
+        var_labels[i]->setObjectName("Result");
         results_container->addWidget(var_labels[i]);
     }
-
-    Elimination::solve(a,vars,b,NUM);
-    exibeMatriz(a,b);
-
-
+    
     resetMatrix(a, a_temp, vars, b, b_temp, nums_matrix);
 
     for(int i =0; i < NUM ; i++){
         cout << vars[i] << " ";
-        QString result_text = QString("x%1 = %2").arg(i + 1).arg(vars[i], 0, 'f', 4);
+        QString result_text = QString("x%1 = %2").arg(i + 1).arg(vars[i], 0, 'f', PRECISION);
         var_labels[i]->setText(result_text);
     } cout << endl;
 
-    QPushButton *button_elimin = new QPushButton("Eliminação Gaussiana");
+    QPushButton *button_elimin = new QPushButton("Gauss Elimination");
     methods_container->addWidget(button_elimin);
-    QObject::connect(button_elimin, &QPushButton::clicked, [&a,a_temp, &vars,&b, b_temp, var_labels, &nums_matrix](){
+    QObject::connect(button_elimin, &QPushButton::clicked, [&a,a_temp, &vars,&b, b_temp, var_labels, num_iter_label, &nums_matrix](){
+        updateUIMatrix(a,b,nums_matrix);
         resetMatrix(a, a_temp, vars, b, b_temp, nums_matrix);
         Elimination::solve(a,vars,b, NUM);
         for (int i = 0; i < NUM; i++) {
-            QString result_text = QString("x%1 = %2").arg(i + 1).arg(vars[i], 0, 'f', 4);
+            QString result_text = QString("x%1 = %2").arg(i + 1).arg(vars[i], 0, 'f', PRECISION);
             var_labels[i]->setText(result_text);
         }
+        updateUIMatrix(a,b,nums_matrix);
+        num_iter_label->setText(QString("Rounds: %1").arg(NUM-1));
     });
 
     QPushButton *button_jacobi = new QPushButton("Gauss Jacobi");
     methods_container->addWidget(button_jacobi);
-    QObject::connect(button_jacobi, &QPushButton::clicked, [&a,a_temp, &vars,&b, b_temp, var_labels, &nums_matrix](){
+    QObject::connect(button_jacobi, &QPushButton::clicked, [&a,a_temp, &vars,&b, b_temp, var_labels, num_iter_label, &nums_matrix](){
         resetMatrix(a, a_temp, vars, b, b_temp, nums_matrix);
-        GJacobi::solve(a,vars,b, NUM);
+        int iterations = GJacobi::solve(a,vars,b, NUM);
         for (int i = 0; i < NUM; i++) {
-            QString result_text = QString("x%1 = %2").arg(i + 1).arg(vars[i], 0, 'f', 4);
+            QString result_text = QString("x%1 = %2").arg(i + 1).arg(vars[i], 0, 'f', PRECISION);
             var_labels[i]->setText(result_text);
         }
+        num_iter_label->setText(QString("Rounds: %1").arg(iterations));
     });
 
     QPushButton *button_seidel = new QPushButton("Gauss Seidel");
     methods_container->addWidget(button_seidel);
-    QObject::connect(button_seidel, &QPushButton::clicked, [&a,a_temp, &vars,&b, b_temp, var_labels, &nums_matrix](){
+    QObject::connect(button_seidel, &QPushButton::clicked, [&a,a_temp, &vars,&b, b_temp, var_labels, num_iter_label, &nums_matrix](){
         resetMatrix(a, a_temp, vars, b, b_temp, nums_matrix);
-        GSeidel::solve(a,vars,b, NUM);
+        int iterations = GSeidel::solve(a,vars,b, NUM);
         for (int i = 0; i < NUM; i++) {
-            QString result_text = QString("x%1 = %2").arg(i + 1).arg(vars[i], 0, 'f', 4);
+            QString result_text = QString("x%1 = %2").arg(i + 1).arg(vars[i], 0, 'f', PRECISION);
             var_labels[i]->setText(result_text);
         }
+        num_iter_label->setText(QString("Rounds: %1").arg(iterations));
+
     });
 
-    buttons_layout->addItem(methods_container);
-    janela.show();
+    window.show();
     int result = app.exec();
 
     for (int i = 0; i < NUM; i++) {

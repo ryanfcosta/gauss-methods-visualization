@@ -1,6 +1,6 @@
 #include "Elimination.h"
 
-void Elimination::subsRegressiva(double **tri_sup, vector<double> &vars, double *b, const int NUM){
+void Elimination::backSubs(double **tri_sup, vector<double> &vars, double *b, const int NUM){
     for(int i = NUM - 1 ;i >= 0; i--){
         double  sum = 0;
         for(int j = i + 1; j < NUM; j++){
@@ -11,7 +11,7 @@ void Elimination::subsRegressiva(double **tri_sup, vector<double> &vars, double 
 }
 
 
-void Elimination::pivotParcial(double **a,double *b, const int k, const int NUM){
+void Elimination::partialPivot(double **a,double *b, const int k, const int NUM){
     double maior  = fabs(a[k][k]);
     int maior_line = k;
 
@@ -36,9 +36,9 @@ void Elimination::pivotParcial(double **a,double *b, const int k, const int NUM)
     }
 }
 
-void Elimination::triangularSuperior(double **a, double *b, const int NUM){
+void Elimination::upperTriangular(double **a, double *b, const int NUM){
     for(int k = 0; k < NUM - 1; k++){
-        pivotParcial(a, b, k, NUM);
+        partialPivot(a, b, k, NUM);
         for(int i = k + 1; i < NUM; i++){
             if(fabs(a[i][k]) > 1e-12){
                 double m = a[i][k] / a[k][k];
@@ -53,6 +53,6 @@ void Elimination::triangularSuperior(double **a, double *b, const int NUM){
 }
 
 void Elimination::solve(double **a, vector<double> &vars, double *b, const int NUM = 4){
-    triangularSuperior(a, b, NUM);
-    subsRegressiva(a, vars, b, NUM);
+    upperTriangular(a, b, NUM);
+    backSubs(a, vars, b, NUM);
 }  
