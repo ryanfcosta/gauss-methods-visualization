@@ -23,27 +23,16 @@
 
 using namespace std;
 
-void resetMatrix(double**a, const double a_temp[NUM][NUM], vector <double> vars, double*b, const double b_temp[NUM], QGridLayout *matrix_layout, QLabel* nums_matrix[NUM][NUM + 1]){
+void resetMatrix(double**a, const double a_temp[NUM][NUM], vector<double> vars, double*b, const double b_temp[NUM], QLabel* nums_matrix[NUM][NUM + 1]){
     vars.assign(NUM, 0.0);
     for (int i = 0; i < NUM; i++) {
         b[i] = b_temp[i];
 
-        nums_matrix[i][NUM] = new QLabel();
+        nums_matrix[i][NUM]->setText( QString("%1").arg(b[i], 0, 'f', 4));
 
-        QString result_b = QString("%1").arg(b[i], 0, 'f', 4);
-        nums_matrix[i][NUM] -> setText(result_b);
-        nums_matrix[i][NUM]->setStyleSheet("border-left: 3px solid #FF5C00;");
-        matrix_layout->addWidget(nums_matrix[i][NUM], i, NUM);
-        a[i] = new double[NUM];
         for (int j = 0; j < NUM; j++) {
             a[i][j] = a_temp[i][j];
-
-            nums_matrix[i][j] = new QLabel();
-
-            QString result_text = QString("%1").arg(a[i][j], 0, 'f', 4);
-            nums_matrix[i][j] -> setText(result_text);
-                
-            matrix_layout->addWidget(nums_matrix[i][j], i, j);
+            nums_matrix[i][j] -> setText(QString("%1").arg(a[i][j], 0, 'f', 4));
         }
     }
 }
@@ -114,10 +103,24 @@ int main(int argc, char* argv[]){
     };
 
     double **a = new double*[NUM];
+    for (int i = 0; i < NUM; i++) {
+        a[i] = new double[NUM];
+    }
     double b[NUM];
     vector <double> vars(NUM, 0.0);
 
-    resetMatrix(a, a_temp, vars, b, b_temp, matrix_layout, nums_matrix);
+    QLabel* nums_matrix[NUM][NUM + 1];
+    for (int i = 0; i < NUM; i++) {
+        for (int j = 0; j < NUM; j++) {
+            nums_matrix[i][j] = new QLabel();
+            matrix_layout->addWidget(nums_matrix[i][j], i, j);
+        }
+        nums_matrix[i][NUM] = new QLabel();
+        nums_matrix[i][NUM]->setStyleSheet("border-left: 3px solid #FF5C00;");
+        matrix_layout->addWidget(nums_matrix[i][NUM], i, NUM);
+    }
+
+    resetMatrix(a, a_temp, vars, b, b_temp, nums_matrix);
     QLabel * var_labels[NUM];
 
     for(int i = 0; i < NUM; i++){
@@ -133,56 +136,22 @@ int main(int argc, char* argv[]){
         results_container->addWidget(var_labels[i]);
     }
 
-
-
     Elimination::solve(a,vars,b,NUM);
     exibeMatriz(a,b);
 
-    for(int i =0; i < NUM; i++){
+
+    resetMatrix(a, a_temp, vars, b, b_temp, nums_matrix);
+
+    for(int i =0; i < NUM ; i++){
+        cout << vars[i] << " ";
         QString result_text = QString("x%1 = %2").arg(i + 1).arg(vars[i], 0, 'f', 4);
         var_labels[i]->setText(result_text);
-    }
-
-    resetMatrix(a, a_temp, vars, b, b_temp, matrix_layout, nums_matrix);
-    
-    for(auto const x : vars){
-        cout << x << " ";
     } cout << endl;
-    for (int i = 0; i < NUM; i++) delete[] a[i];
-    delete[] a;
 
-
-    double ** a_new = new double*[NUM];
-    for (int i = 0; i < NUM; i++) {
-        b[i] = b_temp[i];
-        a_new[i] = new double[NUM];
-        for (int j = 0; j < NUM; j++) {
-            a_new[i][j] = a_temp[i][j];
-        }
-    }
-    
-    vars.assign(NUM, 0.0);
-    GJacobi::solve(a_new,vars,b,NUM);
-
-    for(auto const x : vars){
-        cout << x << " "; vars.assign(NUM, 0.0);
-    }cout << endl;
-
-    vars.assign(NUM, 0.0);
-    GSeidel::solve(a_new,vars,b,NUM);
-
-    for(auto const x : vars){
-        cout << x << " ";
-    }cout << endl;
-
-    for (int i = 0; i < NUM; i++) delete[] a_new[i];
-    delete[] a_new;
-        
     QPushButton *button_elimin = new QPushButton("Eliminação Gaussiana");
     methods_container->addWidget(button_elimin);
-
-    QObject::connect(button_elimin, &QPushButton::clicked, [&a,a_temp, &vars,&b, b_temp, var_labels, matrix_layout, &nums_matrix](){
-        resetMatrix(a, a_temp, vars, b, b_temp, matrix_layout, nums_matrix);
+    QObject::connect(button_elimin, &QPushButton::clicked, [&a,a_temp, &vars,&b, b_temp, var_labels, &nums_matrix](){
+        resetMatrix(a, a_temp, vars, b, b_temp, nums_matrix);
         Elimination::solve(a,vars,b, NUM);
         for (int i = 0; i < NUM; i++) {
             QString result_text = QString("x%1 = %2").arg(i + 1).arg(vars[i], 0, 'f', 4);
@@ -192,8 +161,8 @@ int main(int argc, char* argv[]){
 
     QPushButton *button_jacobi = new QPushButton("Gauss Jacobi");
     methods_container->addWidget(button_jacobi);
-    QObject::connect(button_jacobi, &QPushButton::clicked, [&a,a_temp, &vars,&b, b_temp, var_labels, matrix_layout, &nums_matrix](){
-        resetMatrix(a, a_temp, vars, b, b_temp, matrix_layout, nums_matrix);
+    QObject::connect(button_jacobi, &QPushButton::clicked, [&a,a_temp, &vars,&b, b_temp, var_labels, &nums_matrix](){
+        resetMatrix(a, a_temp, vars, b, b_temp, nums_matrix);
         GJacobi::solve(a,vars,b, NUM);
         for (int i = 0; i < NUM; i++) {
             QString result_text = QString("x%1 = %2").arg(i + 1).arg(vars[i], 0, 'f', 4);
@@ -201,11 +170,10 @@ int main(int argc, char* argv[]){
         }
     });
 
-
     QPushButton *button_seidel = new QPushButton("Gauss Seidel");
     methods_container->addWidget(button_seidel);
-    QObject::connect(button_seidel, &QPushButton::clicked, [&a,a_temp, &vars,&b, b_temp, var_labels, matrix_layout, &nums_matrix](){
-        resetMatrix(a, a_temp, vars, b, b_temp, matrix_layout, nums_matrix);
+    QObject::connect(button_seidel, &QPushButton::clicked, [&a,a_temp, &vars,&b, b_temp, var_labels, &nums_matrix](){
+        resetMatrix(a, a_temp, vars, b, b_temp, nums_matrix);
         GSeidel::solve(a,vars,b, NUM);
         for (int i = 0; i < NUM; i++) {
             QString result_text = QString("x%1 = %2").arg(i + 1).arg(vars[i], 0, 'f', 4);
@@ -215,5 +183,12 @@ int main(int argc, char* argv[]){
 
     buttons_layout->addItem(methods_container);
     janela.show();
-    return app.exec();
+    int result = app.exec();
+
+    for (int i = 0; i < NUM; i++) {
+        delete[] a[i];
+    }
+    delete[] a;
+
+    return result;
 }
