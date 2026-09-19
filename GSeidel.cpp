@@ -1,64 +1,66 @@
 #include "GSeidel.h"
+#include <iostream>
+#include <cmath>
 
-bool GSeidel::critSassenfeld(double **a, const int NUM){
-    vector <double> beta(NUM, 0.0); 
+using namespace std;
+
+bool GSeidel::critSassenfeld(double **a, const int n) {
+    vector<double> beta(n, 0.0); 
     double max_beta = 0.0;
 
-    for(int i = 0; i< NUM; i++){
+    for (int i = 0; i < n; i++) {
         double sum = 0.0;
-        for(int j = 0; j < NUM; j++){
-            if(i != j){
-                if(j < i){
+        for (int j = 0; j < n; j++) {
+            if (i != j) {
+                if (j < i) {
                     sum += fabs(a[i][j]) * beta[j]; 
-                }
-                else{
+                } else {
                     sum += fabs(a[i][j]);                    
                 }
             }
         }
         beta[i] = sum / fabs(a[i][i]);
-        if(beta[i] > max_beta){
+        if (beta[i] > max_beta) {
             max_beta = beta[i];
         }
-        cout << "beta "<< i  + 1<< " " << beta[i] << endl;
-        
+        cout << "beta " << i + 1 << ": " << beta[i] << endl;
     }
-    if(max_beta >= 1) return false;
-    return true;
+    return max_beta < 1.0;
 }
 
-int GSeidel::gaussSeidel(double** a, vector <double> &vars, double* b, const int NUM){
+int GSeidel::gaussSeidel(double** a, vector<double> &vars, double* b, const int n, std::function<void(int step)> onStep) {
     bool stop = false;
     int reps = 0;
 
-    do{
-        vector<double> last(NUM, 0.0);
-        for(int k = 0; k < NUM; k++){
-            last[k] = vars[k];
-        }
+    do {
+        vector<double> last = vars;
 
-        for(int i = 0; i < NUM; i++){
+        for (int i = 0; i < n; i++) {
             double sum = 0.0;
-            for(int j = 0; j < NUM; j++){
-                if(i!=j){
+            for (int j = 0; j < n; j++) {
+                if (i != j) {
                     sum += a[i][j] * vars[j];
                 }
             }
             vars[i] = (b[i] - sum) / a[i][i];
         }
-        stop = GJacobi::critParada(last,vars,NUM, 1e-6);
+
         reps++;
-        
-    
-    }while(!stop && reps < 1000);
-    cout << "Repetições " << reps << endl;
+        if (onStep) {
+            onStep(reps); // Notifica a UI a cada iteração
+        }
+
+        stop = GJacobi::critParada(last, vars, n, 1e-6);
+    } while (!stop && reps < 1000);
+
+    cout << "Repetições Seidel: " << reps << endl;
     return reps;
 }
 
-int GSeidel::solve(double* *a, vector<double> &vars, double* b, const int NUM){
-    if(GJacobi::critLinhas(a, NUM) || GSeidel::critSassenfeld(a, NUM)){
-        return gaussSeidel(a,vars,b, NUM); 
-    }else{
+int GSeidel::solve(double** a, vector<double> &vars, double* b, const int n, std::function<void(int step)> onStep) {
+    if (GJacobi::critLinhas(a, n) || GSeidel::critSassenfeld(a, n)) {
+        return gaussSeidel(a, vars, b, n, onStep); 
+    } else {
         cout << "Não irá convergir" << endl;
         return 0;
     }

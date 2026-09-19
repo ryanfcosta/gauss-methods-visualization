@@ -3,15 +3,47 @@
 #include <vector>
 #include <QLabel>
 #include <QString>
+#include <QTimer>
+#include <QEventLoop>
+#include "Elimination.h"
+#include "GJacobi.h"
+#include "GSeidel.h"
 
 using namespace std;
+
 
 #define NUM 4
 #define PRECISION 7
 
 class MethodVisualizer{
-public:
-    static void resetUI(double**a, const double a_temp[NUM][NUM], vector<double> &vars, double*b, const double b_temp[NUM], QLabel* nums_matrix[NUM][NUM + 1]);
-    static void updateMatrixUI(double** a, double* b, QLabel* nums_matrix[NUM][NUM + 1]);
+    private:
+    QLabel* (*nums_matrix)[NUM + 1];
+    QLabel** var_labels;
+    QLabel* iter_label;
 
+    const double (&a_temp)[NUM][NUM];
+    const double (&b_temp)[NUM];
+
+
+
+    void delay(const int milliseconds);
+    void updateMatrixUI(double** a, double* b);
+    void updateVarsUI(const std::vector<double>& vars);
+    void updateElementA(double** a, const int i, const int j);
+    void updateElementB(double* b, const int i);
+    void updateElementResult(const vector<double> &vars, const int i);
+
+public:
+    MethodVisualizer(QLabel* nums_matrix[NUM][NUM + 1],
+                                    QLabel* var_labels[NUM],
+                                    QLabel* iter_label,
+                                    const double (&a_temp)[NUM][NUM],
+                                    const double (&b_temp)[NUM]);
+    void resetUI(double**a, vector<double> &vars, double*b);
+
+    void updateVarsUI(const std::vector<double>& vars, const std::vector<double>& prev_vars, bool completed = false);
+
+    void runElimination(double** a, double* b, std::vector<double>& vars);
+    void runJacobi(double** a, double* b, std::vector<double>& vars);
+    void runSeidel(double** a, double* b, std::vector<double>& vars);
 };

@@ -30,3 +30,10 @@ QPushButton {
 QPushButton:hover {
     background-color: #ff5c00;
 }
+QLabel#matrixCell {
+    min-height: 45px;
+    max-height: 45px;
+    min-width: 60px;   /* Opcional: fixa a largura também se desejar */
+    max-width: 60px;
+    qproperty-alignment: 'AlignCenter'; /* Centraliza o texto */
+}

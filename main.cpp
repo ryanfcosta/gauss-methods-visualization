@@ -1,6 +1,3 @@
-#include "Elimination.h"
-#include "GJacobi.h"
-#include "GSeidel.h"
 #include "MethodVisualizer.h"
 
 #include <iostream>
@@ -90,33 +87,27 @@ int main(int argc, char* argv[]){
     for (int i = 0; i < NUM; i++) {
         for (int j = 0; j < NUM; j++) {
             nums_matrix[i][j] = new QLabel();
+            nums_matrix[i][j]->setObjectName("matrixCell");
             matrix_layout->addWidget(nums_matrix[i][j], i, j);
         }
         nums_matrix[i][NUM] = new QLabel();
+        nums_matrix[i][NUM]->setObjectName("matrixCell");
         nums_matrix[i][NUM]->setStyleSheet("border-left: 3px solid #FF5C00;");
         matrix_layout->addWidget(nums_matrix[i][NUM], i, NUM);
     }
 
-    MethodVisualizer::resetUI(a, a_temp, vars, b, b_temp, nums_matrix);
-    QLabel * var_labels[NUM];
-
-    QLabel * num_iter_label = new QLabel;
-    num_iter_label->setText("Iterations:   ");
+    QLabel *num_iter_label = new QLabel("Rounds: 0");
     results_container->addWidget(num_iter_label);
 
+    QLabel *var_labels[NUM];
     for(int i = 0; i < NUM; i++){
         var_labels[i] = new QLabel();
-
-        QString result_text = QString("x%1 = %2").arg(i + 1).arg(vars[i], 0, 'f', PRECISION);
-        var_labels[i] -> setText(result_text);
-
         var_labels[i]->setFixedSize(150, 40);
         var_labels[i]->setAlignment(Qt::AlignCenter);
         var_labels[i]->setObjectName("Result");
         results_container->addWidget(var_labels[i]);
     }
-    
-    MethodVisualizer::resetUI(a, a_temp, vars, b, b_temp, nums_matrix);
+
 
     for(int i =0; i < NUM ; i++){
         cout << vars[i] << " ";
@@ -124,45 +115,26 @@ int main(int argc, char* argv[]){
         var_labels[i]->setText(result_text);
     } cout << endl;
 
+    MethodVisualizer visualizer(nums_matrix, var_labels, num_iter_label, a_temp, b_temp);
+    visualizer.resetUI(a, vars, b);
+
     QPushButton *button_elimin = new QPushButton("Gauss Elimination");
     methods_container->addWidget(button_elimin);
-    QObject::connect(button_elimin, &QPushButton::clicked, [&a,a_temp, &vars,&b, b_temp, var_labels, num_iter_label, &nums_matrix](){
-        MethodVisualizer::updateMatrixUI(a,b,nums_matrix);
-        MethodVisualizer::resetUI(a, a_temp, vars, b, b_temp, nums_matrix);
-        Elimination::solve(a,vars,b, NUM);
-        for (int i = 0; i < NUM; i++) {
-            QString result_text = QString("x%1 = %2").arg(i + 1).arg(vars[i], 0, 'f', PRECISION);
-            var_labels[i]->setText(result_text);
-        }
-        MethodVisualizer::updateMatrixUI(a,b,nums_matrix);
-        num_iter_label->setText(QString("Rounds: %1").arg(NUM-1));
+    QObject::connect(button_elimin, &QPushButton::clicked, [&]() {
+        visualizer.runElimination(a, b, vars);
     });
 
     QPushButton *button_jacobi = new QPushButton("Gauss Jacobi");
     methods_container->addWidget(button_jacobi);
-    QObject::connect(button_jacobi, &QPushButton::clicked, [&a,a_temp, &vars,&b, b_temp, var_labels, num_iter_label, &nums_matrix](){
-        MethodVisualizer::resetUI(a, a_temp, vars, b, b_temp, nums_matrix);
-        int iterations = GJacobi::solve(a,vars,b, NUM);
-        for (int i = 0; i < NUM; i++) {
-            QString result_text = QString("x%1 = %2").arg(i + 1).arg(vars[i], 0, 'f', PRECISION);
-            var_labels[i]->setText(result_text);
-        }
-        num_iter_label->setText(QString("Rounds: %1").arg(iterations));
+    QObject::connect(button_jacobi, &QPushButton::clicked, [&]() {
+        visualizer.runJacobi(a, b, vars);
     });
 
     QPushButton *button_seidel = new QPushButton("Gauss Seidel");
     methods_container->addWidget(button_seidel);
-    QObject::connect(button_seidel, &QPushButton::clicked, [&a,a_temp, &vars,&b, b_temp, var_labels, num_iter_label, &nums_matrix](){
-        MethodVisualizer::resetUI(a, a_temp, vars, b, b_temp, nums_matrix);
-        int iterations = GSeidel::solve(a,vars,b, NUM);
-        for (int i = 0; i < NUM; i++) {
-            QString result_text = QString("x%1 = %2").arg(i + 1).arg(vars[i], 0, 'f', PRECISION);
-            var_labels[i]->setText(result_text);
-        }
-        num_iter_label->setText(QString("Rounds: %1").arg(iterations));
-
+    QObject::connect(button_seidel, &QPushButton::clicked, [&]() {
+        visualizer.runSeidel(a, b, vars);
     });
-
     window.show();
     int result = app.exec();
 

@@ -1,20 +1,26 @@
 #pragma once
 
-#include <string>
 #include <vector>
-#include <iostream>
 #include <cmath>
+#include <functional>
 
-using namespace std;
+#define NUM 4
 
-class Elimination{
-
-public: 
-    static void solve(double **triSup, vector<double> &vars, double *b, const int NUM);
-
+class Elimination {
 private:
-    static void partialPivot(double **a,double *b, int k, const int NUM);
-    static void upperTriangular(double **a, double *b, const int NUM);
-    static void backSubs(double **triSup, vector<double> &vars, double *b, const int NUM);
-    
+    static void backSubs(double **tri_sup, std::vector<double> &vars, double *b, std::function<void(int i)> onVarChanged);
+
+    static void partialPivot(double **a, double *b, const int k, std::function<void()> onMatrixChanged);
+
+    static void upperTriangular(double **a, double *b,
+                                std::function<void(int i, int j)> onAChanged,
+                                std::function<void(int i)> onBChanged,
+                                std::function<void()> onMatrixChanged);
+
+public:
+    static void solve(double **a, std::vector<double> &vars, double *b,
+                      std::function<void(int i, int j)> onAChanged = nullptr,
+                      std::function<void(int i)> onBChanged = nullptr,
+                      std::function<void(int i)> onVarChanged = nullptr,
+                      std::function<void()> onMatrixChanged = nullptr);
 };
