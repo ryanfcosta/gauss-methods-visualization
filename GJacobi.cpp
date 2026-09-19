@@ -35,7 +35,7 @@ bool GJacobi::critParada(vector<double> last, vector<double> current, const int 
     return (d < epsilon && dr < epsilon);
 }
 
-int GJacobi::gaussJacobi(double** a, vector<double>& vars, double* b, const int matrix_size, double epsilon, std::function<void(int step)> onStep) {
+int GJacobi::gaussJacobi(double** a, vector<double>& vars, double* b, const int matrix_size, double epsilon, int max_iter, std::function<void(int step)> onStep) {
     vector<double> temp(matrix_size, 0.0);
     bool stop = false;
     int reps = 0;
@@ -58,15 +58,15 @@ int GJacobi::gaussJacobi(double** a, vector<double>& vars, double* b, const int 
         if (onStep) {
             onStep(reps);
         }
-    } while (!stop && reps < 1000);
+    } while (!stop && reps < max_iter);
 
     cout << "Repetições Jacobi: " << reps << endl;
     return reps;
 }
 
-int GJacobi::solve(double** a, vector<double>& vars, double* b, const int matrix_size, double epsilon, std::function<void(int step)> onStep) {
+int GJacobi::solve(double** a, vector<double>& vars, double* b, const int matrix_size, double epsilon,int max_iter, std::function<void(int step)> onStep) {
     if (critLinhas(a, matrix_size)) {
-        return gaussJacobi(a, vars, b, matrix_size, epsilon , onStep);
+        return gaussJacobi(a, vars, b, matrix_size, epsilon ,max_iter, onStep);
     } else {
         cout << "Não irá convergir" << endl;
         return 0;

@@ -1,4 +1,3 @@
-
 QWidget {
     background-color: #1e1e1e;
     color: #ffffff;
@@ -6,15 +5,34 @@ QWidget {
 }
 
 QLabel {
+    background-color: transparent;
+    border: none;
+    color: #ffffff;
+    font-size: 13px;
+}
+
+QLabel#matrixCell, QLabel#Result {
     background-color: #2d2d30;
     border: 1px solid #3f3f46;
     border-radius: 4px;
-    padding: 2px;
-    margin: 0px;
-    font-size: 16px;
+    font-size: 15px;
     font-weight: bold;
-    text-align: center;
-    max-height: 40;
+}
+
+QLabel#matrixCell {
+    min-height: 45px;
+    max-height: 45px;
+    min-width: 100px;
+    max-width: 100px;
+    qproperty-alignment: 'AlignCenter';
+}
+
+QLabel#Result {
+    min-height: 40px;
+    max-height: 40px;
+    min-width: 150px;
+    max-width: 150px;
+    qproperty-alignment: 'AlignCenter';
 }
 
 QPushButton {
@@ -23,17 +41,40 @@ QPushButton {
     border-radius: 4px;
     padding: 10px;
     font-weight: bold;
-    max-width:250;
-    max-height: 50;
+    min-width: 200px;
+    max-width: 220px;
+    min-height: 45px;
 }
 
 QPushButton:hover {
     background-color: #ff5c00;
 }
-QLabel#matrixCell {
-    min-height: 45px;
-    max-height: 45px;
-    min-width: 100px;
-    max-width: 100px;
-    qproperty-alignment: 'AlignCenter';
+
+QGroupBox {
+    background-color: #252526;
+    border: 1px solid #3f3f46;
+    border-radius: 6px;
+    margin-top: 12px;
+    font-weight: bold;
+}
+
+QGroupBox::title {
+    subcontrol-origin: margin;
+    subcontrol-position: top left;
+    left: 10px;
+    padding: 0 5px;
+    color: #ff5c00;
+}
+
+QLineEdit, QSpinBox {
+    background-color: #2d2d30;
+    border: 1px solid #3f3f46;
+    border-radius: 4px;
+    color: #ffffff;
+    padding: 4px;
+    font-size: 13px;
+}
+
+QLineEdit:focus, QSpinBox:focus {
+    border: 1px solid #ff5c00;
 }

@@ -11,6 +11,9 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QGridLayout>
+#include <QFormLayout>
+#include <QGroupBox> 
+#include <QSpinBox>
 #include <QLabel>
 #include <QString>
 #include <QFile>
@@ -35,7 +38,6 @@ int main(int argc, char* argv[]){
     } else {
         cout << "Aviso: Nao foi possivel carregar o style.qss" << endl;
     }
-
 
     QWidget window;
     window.setWindowTitle("Gauss Methods Visualization");
@@ -62,21 +64,36 @@ int main(int argc, char* argv[]){
     buttons_layout->addLayout(methods_container);
     buttons_layout->addLayout(control_container);
 
-
     QLabel* nums_matrix[NUM][NUM + 1];
 
-    QLabel *epsilonLabel = new QLabel("Epsilon (Tolerância):");
-    QLineEdit *epsilonInput = new QLineEdit(&window);
-    epsilonInput->setText("1e-6");
+    QGroupBox *stop_box = new QGroupBox("", &window);
+    QFormLayout *stop_layout = new QFormLayout(stop_box);
 
-    QDoubleValidator *validator = new QDoubleValidator(0.0, 1.0, 10, epsilonInput);
+    QLineEdit *eps_input = new QLineEdit("1e-6", stop_box);
+    eps_input->setMaximumWidth(120);
+    QDoubleValidator *validator = new QDoubleValidator(0.0, 1.0, 10, eps_input);
     validator->setNotation(QDoubleValidator::ScientificNotation);
-    epsilonInput->setValidator(validator);
+    eps_input->setValidator(validator);
 
-    control_container->addWidget(epsilonLabel);
-    control_container->addWidget(epsilonInput);
+    QSpinBox *max_iter_input = new QSpinBox(stop_box);
+    max_iter_input->setMaximumWidth(120);
+    max_iter_input->setRange(1, 100000);
+    max_iter_input->setValue(1000);
 
-    double epsilon = epsilonInput->text().toDouble();
+    QLabel *norm_abs_label = new QLabel("0.0000e+00", stop_box);
+    norm_abs_label->setStyleSheet("font-weight: bold; color: #2ECC71;");
+    QLabel *norm_rel_label = new QLabel("0.0000e+00", stop_box);
+    norm_rel_label->setStyleSheet("font-weight: bold; color: #3498DB;");
+
+    stop_layout->addRow("Epsilon (Tol.):", eps_input);
+    stop_layout->addRow("Máx. Iterações:", max_iter_input);
+    stop_layout->addRow("Norma Absoluta:", norm_abs_label);
+    stop_layout->addRow("Norma Relativa:", norm_rel_label);
+
+    control_container->addWidget(stop_box);
+
+    double epsilon = eps_input->text().toDouble();
+    int max_iterations = max_iter_input->value();
 
     cout << fixed << setprecision(9);
 
@@ -121,16 +138,11 @@ int main(int argc, char* argv[]){
         var_labels[i]->setAlignment(Qt::AlignCenter);
         var_labels[i]->setObjectName("Result");
         results_container->addWidget(var_labels[i]);
-    }
-
-
-    for(int i =0; i < NUM ; i++){
-        cout << vars[i] << " ";
         QString result_text = QString("x%1 = %2").arg(i + 1).arg(vars[i], 0, 'f', PRECISION);
         var_labels[i]->setText(result_text);
-    } cout << endl;
+    }
 
-    MethodVisualizer visualizer(nums_matrix, var_labels, num_iter_label, a_temp, b_temp, epsilon);
+    MethodVisualizer visualizer(nums_matrix, var_labels, num_iter_label, a_temp, b_temp, epsilon, max_iterations);
     visualizer.resetUI(a, vars, b);
 
     QPushButton *button_elimin = new QPushButton("Gauss Elimination");
@@ -142,16 +154,17 @@ int main(int argc, char* argv[]){
     QPushButton *button_jacobi = new QPushButton("Gauss Jacobi");
     methods_container->addWidget(button_jacobi);
     QObject::connect(button_jacobi, &QPushButton::clicked, [&]() {
-        visualizer.setEpsilon(epsilonInput->text().toDouble());
+        visualizer.setEpsilon(eps_input->text().toDouble());
         visualizer.runJacobi(a, b, vars);
     });
 
     QPushButton *button_seidel = new QPushButton("Gauss Seidel");
     methods_container->addWidget(button_seidel);
     QObject::connect(button_seidel, &QPushButton::clicked, [&]() {
-        visualizer.setEpsilon(epsilonInput->text().toDouble());
+        visualizer.setEpsilon(eps_input->text().toDouble());
         visualizer.runSeidel(a, b, vars);
     });
+
     window.show();
     int result = app.exec();
 

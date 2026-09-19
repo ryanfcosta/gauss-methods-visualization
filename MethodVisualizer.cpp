@@ -5,9 +5,10 @@ MethodVisualizer::MethodVisualizer(QLabel* nums_matrix[NUM][NUM + 1],
                                     QLabel* iter_label,
                                     const double (&a_temp)[NUM][NUM],
                                     const double (&b_temp)[NUM],
-                                    double epsilon)
+                                    double epsilon,
+                                    int max_iterations)
     : nums_matrix(nums_matrix), var_labels(var_labels), iter_label(iter_label),
-      a_temp(a_temp), b_temp(b_temp), epsilon(epsilon) {};
+      a_temp(a_temp), b_temp(b_temp), epsilon(epsilon), max_iterations(max_iterations) {};
 
 
 
@@ -117,7 +118,7 @@ void MethodVisualizer::runJacobi(double** a, double* b, std::vector<double>& var
     resetUI(a, vars, b);
     std::vector<double> prev_vars = vars;
 
-    int iterations = GJacobi::solve(a, vars, b, NUM, epsilon, [&](int step) {
+    int iterations = GJacobi::solve(a, vars, b, NUM, epsilon, max_iterations,[&](int step) {
         updateVarsUI(vars, prev_vars, false); 
         prev_vars = vars;                    
         
@@ -131,7 +132,7 @@ void MethodVisualizer::runSeidel(double** a, double* b, std::vector<double>& var
     resetUI(a, vars, b);
     std::vector<double> prev_vars = vars;
 
-    int iterations = GSeidel::solve(a, vars, b, NUM, epsilon, [&](int step) {
+    int iterations = GSeidel::solve(a, vars, b, NUM, epsilon, max_iterations, [&](int step) {
         updateVarsUI(vars, prev_vars, false); 
         prev_vars = vars; 
         
@@ -142,3 +143,4 @@ void MethodVisualizer::runSeidel(double** a, double* b, std::vector<double>& var
     updateVarsUI(vars, prev_vars, true);
 }
 void MethodVisualizer::setEpsilon(double ep) { epsilon = ep; };
+void MethodVisualizer::setMaxIter(double mi) { max_iterations = mi; };
