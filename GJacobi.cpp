@@ -2,15 +2,15 @@
 
 using namespace std;
 
-bool GJacobi::critLinhas(double** A, const int n) {
+bool GJacobi::critLinhas(double** a, const int n) {
     for (int i = 0; i < n; i++) {
         double sum = 0.0;
         for (int j = 0; j < n; j++) {
             if (i != j) {
-                sum += fabs(A[i][j]);
+                sum += fabs(a[i][j]);
             }
         }
-        double alpha = sum / fabs(A[i][i]);
+        double alpha = sum / fabs(a[i][i]);
         cout << "alpha " << i + 1 << ": " << alpha << endl;
         if (alpha >= 1.0) return false;
     }
@@ -35,25 +35,25 @@ bool GJacobi::critParada(vector<double> last, vector<double> current, const int 
     return (d < epsilon && dr < epsilon);
 }
 
-int GJacobi::gaussJacobi(double** A, vector<double> &vars, double* b, const int n, std::function<void(int step)> onStep) {
+int GJacobi::gaussJacobi(double** a, vector<double>& vars, double* b, const int n, std::function<void(int step)> onStep) {
     vector<double> temp(n, 0.0);
     bool stop = false;
     int reps = 0;
 
-    do { 
+    do {
         for (int i = 0; i < n; i++) {
             double sum = 0.0;
             for (int j = 0; j < n; j++) {
                 if (i != j) {
-                    sum += A[i][j] * vars[j];
+                    sum += a[i][j] * vars[j];
                 }
-            } 
-            temp[i] = (b[i] - sum) / A[i][i];
+            }
+            temp[i] = (b[i] - sum) / a[i][i];
         }
 
         stop = critParada(vars, temp, n, 1e-6);
         for (int i = 0; i < n; i++) vars[i] = temp[i];
-        
+
         reps++;
         if (onStep) {
             onStep(reps);
@@ -64,9 +64,9 @@ int GJacobi::gaussJacobi(double** A, vector<double> &vars, double* b, const int 
     return reps;
 }
 
-int GJacobi::solve(double** A, vector<double> &vars, double* b, const int n, std::function<void(int step)> onStep) {
-    if (critLinhas(A, n)) {
-        return gaussJacobi(A, vars, b, n, onStep);
+int GJacobi::solve(double** a, vector<double>& vars, double* b, const int n, std::function<void(int step)> onStep) {
+    if (critLinhas(a, n)) {
+        return gaussJacobi(a, vars, b, n, onStep);
     } else {
         cout << "Não irá convergir" << endl;
         return 0;

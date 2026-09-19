@@ -1,11 +1,9 @@
 #include "GSeidel.h"
-#include <iostream>
-#include <cmath>
 
 using namespace std;
 
-bool GSeidel::critSassenfeld(double **a, const int n) {
-    vector<double> beta(n, 0.0); 
+bool GSeidel::critSassenfeld(double** a, const int n) {
+    vector<double> beta(n, 0.0);
     double max_beta = 0.0;
 
     for (int i = 0; i < n; i++) {
@@ -13,9 +11,9 @@ bool GSeidel::critSassenfeld(double **a, const int n) {
         for (int j = 0; j < n; j++) {
             if (i != j) {
                 if (j < i) {
-                    sum += fabs(a[i][j]) * beta[j]; 
+                    sum += fabs(a[i][j]) * beta[j];
                 } else {
-                    sum += fabs(a[i][j]);                    
+                    sum += fabs(a[i][j]);
                 }
             }
         }
@@ -28,7 +26,7 @@ bool GSeidel::critSassenfeld(double **a, const int n) {
     return max_beta < 1.0;
 }
 
-int GSeidel::gaussSeidel(double** a, vector<double> &vars, double* b, const int n, std::function<void(int step)> onStep) {
+int GSeidel::gaussSeidel(double** a, vector<double>& vars, double* b, const int n, std::function<void(int step)> onStep) {
     bool stop = false;
     int reps = 0;
 
@@ -47,7 +45,7 @@ int GSeidel::gaussSeidel(double** a, vector<double> &vars, double* b, const int 
 
         reps++;
         if (onStep) {
-            onStep(reps); // Notifica a UI a cada iteração
+            onStep(reps);
         }
 
         stop = GJacobi::critParada(last, vars, n, 1e-6);
@@ -57,9 +55,9 @@ int GSeidel::gaussSeidel(double** a, vector<double> &vars, double* b, const int 
     return reps;
 }
 
-int GSeidel::solve(double** a, vector<double> &vars, double* b, const int n, std::function<void(int step)> onStep) {
+int GSeidel::solve(double** a, vector<double>& vars, double* b, const int n, std::function<void(int step)> onStep) {
     if (GJacobi::critLinhas(a, n) || GSeidel::critSassenfeld(a, n)) {
-        return gaussSeidel(a, vars, b, n, onStep); 
+        return gaussSeidel(a, vars, b, n, onStep);
     } else {
         cout << "Não irá convergir" << endl;
         return 0;
