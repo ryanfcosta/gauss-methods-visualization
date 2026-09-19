@@ -20,12 +20,14 @@ void MethodVisualizer::resetUI(double**a, vector<double> &vars, double*b){
     vars.assign(NUM, 0.0);
     for (int i = 0; i < NUM; i++) {
         b[i] = MethodVisualizer::b_temp[i];
-
         nums_matrix[i][NUM]->setText(QString("%1").arg(b[i], 0, 'f', PRECISION));
+
 
         for (int j = 0; j < NUM; j++) {
             a[i][j] = a_temp[i][j];
+            nums_matrix[i][j]->setStyleSheet(""); 
             nums_matrix[i][j] -> setText(QString("%1").arg(a[i][j], 0, 'f', PRECISION));
+
             var_labels[j]->setStyleSheet("");
             var_labels[j]->setText(QString("x%1 = 0.0000").arg(i + 1));
 
