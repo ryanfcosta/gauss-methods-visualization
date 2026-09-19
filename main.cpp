@@ -22,7 +22,7 @@
 #include <QLineEdit>
 #include <QDoubleValidator>
 
-#define PRECISION 7
+#define PRECISION 12
 
 using namespace std;
 
@@ -41,7 +41,7 @@ int main(int argc, char* argv[]){
 
     QWidget window;
     window.setWindowTitle("Gauss Methods Visualization");
-    window.resize(1920,1080);
+    window.resize(1920, 1080);
 
     QVBoxLayout *main_layout = new QVBoxLayout(&window);
 
@@ -61,27 +61,37 @@ int main(int argc, char* argv[]){
     visualize_layout->addLayout(results_container);
     visualize_layout->setAlignment(matrix_layout, Qt::AlignCenter);
 
+    buttons_layout->setSpacing(40);
+    methods_container->setAlignment(Qt::AlignTop);
+    control_container->setAlignment(Qt::AlignTop);
+
     buttons_layout->addLayout(methods_container);
     buttons_layout->addLayout(control_container);
+    buttons_layout->addStretch();
 
     QLabel* nums_matrix[NUM][NUM + 1];
 
-    QGroupBox *stop_box = new QGroupBox("", &window);
+    QGroupBox *stop_box = new QGroupBox("Condições de Parada", &window);
     QFormLayout *stop_layout = new QFormLayout(stop_box);
 
+    stop_layout->setContentsMargins(15, 15, 15, 15);
+    stop_layout->setVerticalSpacing(10);
+    stop_layout->setHorizontalSpacing(15);
+
     QLineEdit *eps_input = new QLineEdit("1e-6", stop_box);
-    eps_input->setMaximumWidth(120);
+    eps_input->setFixedWidth(100);
     QDoubleValidator *validator = new QDoubleValidator(0.0, 1.0, 10, eps_input);
     validator->setNotation(QDoubleValidator::ScientificNotation);
     eps_input->setValidator(validator);
 
     QSpinBox *max_iter_input = new QSpinBox(stop_box);
-    max_iter_input->setMaximumWidth(120);
+    max_iter_input->setFixedWidth(100);
     max_iter_input->setRange(1, 100000);
     max_iter_input->setValue(1000);
 
     QLabel *norm_abs_label = new QLabel("0.0000e+00", stop_box);
     norm_abs_label->setStyleSheet("font-weight: bold; color: #2ECC71;");
+    
     QLabel *norm_rel_label = new QLabel("0.0000e+00", stop_box);
     norm_rel_label->setStyleSheet("font-weight: bold; color: #3498DB;");
 
@@ -90,6 +100,7 @@ int main(int argc, char* argv[]){
     stop_layout->addRow("Norma Absoluta:", norm_abs_label);
     stop_layout->addRow("Norma Relativa:", norm_rel_label);
 
+    stop_box->setFixedWidth(280);
     control_container->addWidget(stop_box);
 
     double epsilon = eps_input->text().toDouble();
@@ -155,6 +166,7 @@ int main(int argc, char* argv[]){
     methods_container->addWidget(button_jacobi);
     QObject::connect(button_jacobi, &QPushButton::clicked, [&]() {
         visualizer.setEpsilon(eps_input->text().toDouble());
+        visualizer.setMaxIter(max_iter_input->value());
         visualizer.runJacobi(a, b, vars);
     });
 
@@ -162,6 +174,7 @@ int main(int argc, char* argv[]){
     methods_container->addWidget(button_seidel);
     QObject::connect(button_seidel, &QPushButton::clicked, [&]() {
         visualizer.setEpsilon(eps_input->text().toDouble());
+        visualizer.setMaxIter(max_iter_input->value());
         visualizer.runSeidel(a, b, vars);
     });
 

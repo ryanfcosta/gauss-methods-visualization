@@ -13,7 +13,7 @@ using namespace std;
 
 
 #define NUM 4
-#define PRECISION 7
+#define PRECISION 9
 
 class MethodVisualizer{
     private:
