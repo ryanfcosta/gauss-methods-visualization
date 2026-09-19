@@ -4,9 +4,10 @@ MethodVisualizer::MethodVisualizer(QLabel* nums_matrix[NUM][NUM + 1],
                                     QLabel* var_labels[NUM],
                                     QLabel* iter_label,
                                     const double (&a_temp)[NUM][NUM],
-                                   const double (&b_temp)[NUM])
+                                    const double (&b_temp)[NUM],
+                                    double epsilon)
     : nums_matrix(nums_matrix), var_labels(var_labels), iter_label(iter_label),
-      a_temp(a_temp), b_temp(b_temp) {};
+      a_temp(a_temp), b_temp(b_temp), epsilon(epsilon) {};
 
 
 
@@ -22,15 +23,13 @@ void MethodVisualizer::resetUI(double**a, vector<double> &vars, double*b){
         b[i] = MethodVisualizer::b_temp[i];
         nums_matrix[i][NUM]->setText(QString("%1").arg(b[i], 0, 'f', PRECISION));
 
+        var_labels[i]->setStyleSheet("");
+        var_labels[i]->setText(QString("x%1 = 0.0000").arg(i + 1));
 
         for (int j = 0; j < NUM; j++) {
             a[i][j] = a_temp[i][j];
             nums_matrix[i][j]->setStyleSheet(""); 
             nums_matrix[i][j] -> setText(QString("%1").arg(a[i][j], 0, 'f', PRECISION));
-
-            var_labels[j]->setStyleSheet("");
-            var_labels[j]->setText(QString("x%1 = 0.0000").arg(i + 1));
-
         }
     }
 }
@@ -118,7 +117,7 @@ void MethodVisualizer::runJacobi(double** a, double* b, std::vector<double>& var
     resetUI(a, vars, b);
     std::vector<double> prev_vars = vars;
 
-    int iterations = GJacobi::solve(a, vars, b, NUM, [&](int step) {
+    int iterations = GJacobi::solve(a, vars, b, NUM, epsilon, [&](int step) {
         updateVarsUI(vars, prev_vars, false); 
         prev_vars = vars;                    
         
@@ -132,7 +131,7 @@ void MethodVisualizer::runSeidel(double** a, double* b, std::vector<double>& var
     resetUI(a, vars, b);
     std::vector<double> prev_vars = vars;
 
-    int iterations = GSeidel::solve(a, vars, b, NUM, [&](int step) {
+    int iterations = GSeidel::solve(a, vars, b, NUM, epsilon, [&](int step) {
         updateVarsUI(vars, prev_vars, false); 
         prev_vars = vars; 
         
@@ -142,3 +141,4 @@ void MethodVisualizer::runSeidel(double** a, double* b, std::vector<double>& var
 
     updateVarsUI(vars, prev_vars, true);
 }
+void MethodVisualizer::setEpsilon(double ep) { epsilon = ep; };

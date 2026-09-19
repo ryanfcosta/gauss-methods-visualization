@@ -16,6 +16,8 @@
 #include <QFile>
 #include <QTextStream>
 #include <QPushButton>
+#include <QLineEdit>
+#include <QDoubleValidator>
 
 #define PRECISION 7
 
@@ -60,8 +62,21 @@ int main(int argc, char* argv[]){
     buttons_layout->addLayout(methods_container);
     buttons_layout->addLayout(control_container);
 
+
     QLabel* nums_matrix[NUM][NUM + 1];
 
+    QLabel *epsilonLabel = new QLabel("Epsilon (Tolerância):");
+    QLineEdit *epsilonInput = new QLineEdit(&window);
+    epsilonInput->setText("1e-6");
+
+    QDoubleValidator *validator = new QDoubleValidator(0.0, 1.0, 10, epsilonInput);
+    validator->setNotation(QDoubleValidator::ScientificNotation);
+    epsilonInput->setValidator(validator);
+
+    control_container->addWidget(epsilonLabel);
+    control_container->addWidget(epsilonInput);
+
+    double epsilon = epsilonInput->text().toDouble();
 
     cout << fixed << setprecision(9);
 
@@ -115,7 +130,7 @@ int main(int argc, char* argv[]){
         var_labels[i]->setText(result_text);
     } cout << endl;
 
-    MethodVisualizer visualizer(nums_matrix, var_labels, num_iter_label, a_temp, b_temp);
+    MethodVisualizer visualizer(nums_matrix, var_labels, num_iter_label, a_temp, b_temp, epsilon);
     visualizer.resetUI(a, vars, b);
 
     QPushButton *button_elimin = new QPushButton("Gauss Elimination");
@@ -127,12 +142,14 @@ int main(int argc, char* argv[]){
     QPushButton *button_jacobi = new QPushButton("Gauss Jacobi");
     methods_container->addWidget(button_jacobi);
     QObject::connect(button_jacobi, &QPushButton::clicked, [&]() {
+        visualizer.setEpsilon(epsilonInput->text().toDouble());
         visualizer.runJacobi(a, b, vars);
     });
 
     QPushButton *button_seidel = new QPushButton("Gauss Seidel");
     methods_container->addWidget(button_seidel);
     QObject::connect(button_seidel, &QPushButton::clicked, [&]() {
+        visualizer.setEpsilon(epsilonInput->text().toDouble());
         visualizer.runSeidel(a, b, vars);
     });
     window.show();

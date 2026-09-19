@@ -24,7 +24,7 @@ class MethodVisualizer{
     const double (&a_temp)[NUM][NUM];
     const double (&b_temp)[NUM];
 
-
+    double epsilon;
 
     void delay(const int milliseconds);
     void updateMatrixUI(double** a, double* b);
@@ -38,7 +38,8 @@ public:
                                     QLabel* var_labels[NUM],
                                     QLabel* iter_label,
                                     const double (&a_temp)[NUM][NUM],
-                                    const double (&b_temp)[NUM]);
+                                    const double (&b_temp)[NUM],
+                                    double epsilon);
     void resetUI(double**a, vector<double> &vars, double*b);
 
     void updateVarsUI(const std::vector<double>& vars, const std::vector<double>& prev_vars, bool completed = false);
@@ -46,4 +47,6 @@ public:
     void runElimination(double** a, double* b, std::vector<double>& vars);
     void runJacobi(double** a, double* b, std::vector<double>& vars);
     void runSeidel(double** a, double* b, std::vector<double>& vars);
+
+    void setEpsilon(double ep);
 };

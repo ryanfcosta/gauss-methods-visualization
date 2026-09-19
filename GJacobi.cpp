@@ -2,10 +2,10 @@
 
 using namespace std;
 
-bool GJacobi::critLinhas(double** a, const int n) {
-    for (int i = 0; i < n; i++) {
+bool GJacobi::critLinhas(double** a, const int matrix_size) {
+    for (int i = 0; i < matrix_size; i++) {
         double sum = 0.0;
-        for (int j = 0; j < n; j++) {
+        for (int j = 0; j < matrix_size; j++) {
             if (i != j) {
                 sum += fabs(a[i][j]);
             }
@@ -18,10 +18,10 @@ bool GJacobi::critLinhas(double** a, const int n) {
     return true;
 }
 
-bool GJacobi::critParada(vector<double> last, vector<double> current, const int n, const double epsilon) {
+bool GJacobi::critParada(vector<double> last, vector<double> current, const int matrix_size, const double epsilon) {
     double d = 0.0, xMax = 0.0;
 
-    for (int i = 0; i < n; i++) {
+    for (int i = 0; i < matrix_size; i++) {
         double diff = fabs(current[i] - last[i]);
         if (diff > d) {
             d = diff;
@@ -35,15 +35,15 @@ bool GJacobi::critParada(vector<double> last, vector<double> current, const int 
     return (d < epsilon && dr < epsilon);
 }
 
-int GJacobi::gaussJacobi(double** a, vector<double>& vars, double* b, const int n, std::function<void(int step)> onStep) {
-    vector<double> temp(n, 0.0);
+int GJacobi::gaussJacobi(double** a, vector<double>& vars, double* b, const int matrix_size, double epsilon, std::function<void(int step)> onStep) {
+    vector<double> temp(matrix_size, 0.0);
     bool stop = false;
     int reps = 0;
 
     do {
-        for (int i = 0; i < n; i++) {
+        for (int i = 0; i < matrix_size; i++) {
             double sum = 0.0;
-            for (int j = 0; j < n; j++) {
+            for (int j = 0; j < matrix_size; j++) {
                 if (i != j) {
                     sum += a[i][j] * vars[j];
                 }
@@ -51,8 +51,8 @@ int GJacobi::gaussJacobi(double** a, vector<double>& vars, double* b, const int 
             temp[i] = (b[i] - sum) / a[i][i];
         }
 
-        stop = critParada(vars, temp, n, 1e-6);
-        for (int i = 0; i < n; i++) vars[i] = temp[i];
+        stop = critParada(vars, temp, matrix_size, epsilon);
+        for (int i = 0; i < matrix_size; i++) vars[i] = temp[i];
 
         reps++;
         if (onStep) {
@@ -64,9 +64,9 @@ int GJacobi::gaussJacobi(double** a, vector<double>& vars, double* b, const int 
     return reps;
 }
 
-int GJacobi::solve(double** a, vector<double>& vars, double* b, const int n, std::function<void(int step)> onStep) {
-    if (critLinhas(a, n)) {
-        return gaussJacobi(a, vars, b, n, onStep);
+int GJacobi::solve(double** a, vector<double>& vars, double* b, const int matrix_size, double epsilon, std::function<void(int step)> onStep) {
+    if (critLinhas(a, matrix_size)) {
+        return gaussJacobi(a, vars, b, matrix_size, epsilon , onStep);
     } else {
         cout << "Não irá convergir" << endl;
         return 0;
